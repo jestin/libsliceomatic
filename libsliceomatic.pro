@@ -18,7 +18,8 @@ SOURCES += libsliceomatic.cpp \
 
 HEADERS += libsliceomatic.h\
         libsliceomatic_global.h \
-    stl.h
+    stl.h \
+    cgaldefs.h
 
 symbian {
     #Symbian specific definitions

@@ -19,6 +19,11 @@
  */
 
 #include <stdio.h>
+#include <iostream>
+#include <fstream>
+#include "cgaldefs.h"
+
+using namespace std;
 
 #define STL_MAX(A,B) ((A)>(B)? (A):(B))
 #define STL_MIN(A,B) ((A)<(B)? (A):(B))
@@ -164,9 +169,12 @@ public:
     void open_merge(char *file);
     void generate_shared_vertices();
     void write_off(char *file);
+    void write_off(ostream& stream);
     void write_dxf(char *file, char *label);
     void write_vrml(char *file);
     void calculate_normal(float normal[], stl_facet *facet);
     void normalize_vector(float v[]);
     void calculate_volume();
+
+    Polyhedron to_polyhedron();
 };

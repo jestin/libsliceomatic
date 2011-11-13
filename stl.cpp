@@ -22,7 +22,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <sstream>
 #include "stl.h"
+
+using namespace std;
 
 #if !defined(SEEK_SET)
 #define SEEK_SET 0
@@ -893,39 +896,41 @@ void stl::generate_shared_vertices()
 
 void stl::write_off(char *file)
 {
-  int i;
-  FILE      *fp;
   char      *error_msg;
+  ofstream  outfile;
 
+  outfile.open(file);
 
-  /* Open the file */
-  fp = fopen(file, "w");
-  if(fp == NULL)
+  if(outfile.fail())
     {
       error_msg =
         (char*) malloc(81 + strlen(file)); /* Allow 80 chars+file size for message */
-      sprintf(error_msg, "stl_write_ascii: Couldn't open %s for writing",
+      sprintf(error_msg, "write_off: Couldn't open %s for writing",
               file);
       perror(error_msg);
       free(error_msg);
       exit(1);
     }
 
-  fprintf(fp, "OFF\n");
-  fprintf(fp, "%d %d 0\n",
-          stats.shared_vertices, stats.number_of_facets);
+  write_off(outfile);
+  outfile.close();
+}
 
-  for(i = 0; i < stats.shared_vertices; i++)
-    {
-      fprintf(fp, "\t%f %f %f\n",
-              v_shared[i].x, v_shared[i].y, v_shared[i].z);
-    }
-  for(i = 0; i < stats.number_of_facets; i++)
-    {
-      fprintf(fp, "\t3 %d %d %d\n", v_indices[i].vertex[0],
-              v_indices[i].vertex[1], v_indices[i].vertex[2]);
-    }
-  fclose(fp);
+void stl::write_off(ostream& stream)
+{
+    stream << "OFF\n";
+    stream << stats.shared_vertices << " " << stats.number_of_facets << " 0" << endl;
+
+    for(int i = 0; i < stats.shared_vertices; i++)
+      {
+        stream << "\t" << v_shared[i].x << " " << v_shared[i].y << " " << v_shared[i].z << endl;
+      }
+    for(int i = 0; i < stats.number_of_facets; i++)
+      {
+        fprintf(fp, "\t3 %d %d %d\n", v_indices[i].vertex[0],
+                v_indices[i].vertex[1], v_indices[i].vertex[2]);
+        stream << "\t3 " << v_indices[i].vertex[0] << " " << v_indices[i].vertex[1] << " " << v_indices[i].vertex[2] << endl;
+      }
 }
 
 void stl::write_vrml(char *file)
@@ -985,4 +990,18 @@ void stl::write_vrml(char *file)
   fprintf(fp, "\t}\n");
   fprintf(fp, "}\n");
   fclose(fp);
+}
+
+
+Polyhedron stl::to_polyhedron()
+{
+    Polyhedron p;
+
+    stringstream ss;
+
+    write_off(ss);
+
+    ss >> p;
+
+    return p;
 }
